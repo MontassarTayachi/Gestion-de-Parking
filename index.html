@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TP1 – Gestion de Parking VHDL</title>
+  <style>
+    :root {
+      --primary:   #1a3a5c;
+      --accent:    #2e86de;
+      --light:     #f0f4f8;
+      --border:    #cdd5df;
+      --code-bg:   #1e2d3d;
+      --code-fg:   #abb2bf;
+      --green:     #27ae60;
+      --red:       #e74c3c;
+      --orange:    #e67e22;
+      --yellow:    #f1c40f;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f4f7fb;
+      color: #2c3e50;
+      line-height: 1.7;
+    }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: #fff;
+      padding: 48px 60px 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; right: -40px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+    }
+    header .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 0.82em;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    header h1 {
+      font-size: 2.2em;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    header p { font-size: 1.05em; opacity: 0.88; }
+
+    /* ── GITHUB BUTTON ─────────────────────────────── */
+    .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 20px;
+      padding: 10px 22px;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 30px;
+      font-size: 0.92em;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      position: relative;
+      z-index: 1;
+    }
+    .github-btn:hover {
+      background: rgba(255,255,255,0.28);
+      border-color: #fff;
+      transform: translateY(-2px);
+    }
+    .github-btn svg {
+      flex-shrink: 0;
+    }
+
+    /* ── AUTHORS CARD ───────────────────────────────── */
+    .authors-section {
+      background: #fff;
+      border-left: 5px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      margin: 36px 60px;
+      padding: 24px 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .authors-section h2 {
+      color: var(--primary);
+      font-size: 1em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .authors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .author-card {
+      background: var(--light);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .author-card .avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95em;
+      flex-shrink: 0;
+    }
+    .author-card span { font-size: 0.9em; font-weight: 500; }
+
+    /* ── MAIN CONTENT ───────────────────────────────── */
+    main { padding: 0 60px 60px; }
+
+    /* ── SECTION ────────────────────────────────────── */
+    section { margin-bottom: 48px; }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .section-num {
+      background: var(--accent);
+      color: #fff;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 0.9em;
+      flex-shrink: 0;
+    }
+    .section-title h2 {
+      font-size: 1.35em;
+      color: var(--primary);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 4px;
+    }
+
+    h3 {
+      font-size: 1.05em;
+      color: var(--primary);
+      margin: 24px 0 10px;
+      padding-left: 10px;
+      border-left: 3px solid var(--accent);
+    }
+
+    p { margin-bottom: 10px; }
+
+    /* ── TABLES ─────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92em;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    }
+    thead { background: var(--primary); color: #fff; }
+    thead th { padding: 11px 16px; text-align: left; font-weight: 600; }
+    tbody tr:nth-child(even) { background: var(--light); }
+    tbody td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+
+    /* ── CODE BLOCKS ────────────────────────────────── */
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 8px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.88em;
+      line-height: 1.6;
+      margin: 16px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    code {
+      background: #e8edf2;
+      color: var(--primary);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.88em;
+    }
+    pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+    /* keyword colors in pre blocks */
+    .kw  { color: #c678dd; }
+    .ty  { color: #e5c07b; }
+    .cm  { color: #5c6370; font-style: italic; }
+    .str { color: #98c379; }
+    .num { color: #d19a66; }
+    .sig { color: #61afef; }
+
+    /* ── FSM DIAGRAM ────────────────────────────────── */
+    .fsm-wrap {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px;
+      margin: 16px 0;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+      overflow-x: auto;
+    }
+    .fsm {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+      row-gap: 24px;
+    }
+    .state {
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      width: 110px; height: 110px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      font-size: 0.82em;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(26,58,92,0.3);
+      flex-shrink: 0;
+    }
+    .state.active { background: var(--accent); }
+    .state .out {
+      font-size: 0.75em;
+      font-weight: 400;
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+    .arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75em;
+      color: #555;
+      padding: 0 10px;
+      min-width: 80px;
+      text-align: center;
+    }
+    .arrow-line {
+      font-size: 1.5em;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    /* ── TIMING DIAGRAM ─────────────────────────────── */
+    .timing {
+      background: var(--code-bg);
+      color: #a8d8ff;
+      border-radius: 8px;
+      padding: 20px 24px;
+      font-family: 'Consolas', monospace;
+      font-size: 0.88em;
+      line-height: 2;
+      margin: 16px 0;
+    }
+    .timing .sig-name { color: #e5c07b; display: inline-block; width: 120px; }
+    .timing .hi  { color: #98c379; }
+    .timing .lo  { color: #5c6370; }
+    .timing .pulse { color: #e06c75; font-weight: bold; }
+
+    /* ── SEVERITY BADGES ────────────────────────────── */
+    .sev-note    { background:#d1ecf1; color:#0c5460; border-radius:4px; padding:2px 8px; font-size:0.82em; font-weight:700; }
+    .sev-warning { background:#fff3cd; color:#856404; border-radius:4px; padding:2px 8px; font-size:0.82em; font-weight:700; }
+    .sev-error   { background:#f8d7da; color:#721c24; border-radius:4px; padding:2px 8px; font-size:0.82em; font-weight:700; }
+    .sev-failure { background:#f5c6cb; color:#491217; border-radius:4px; padding:2px 8px; font-size:0.82em; font-weight:700; }
+
+    /* ── ARCH DIAGRAM ───────────────────────────────── */
+    .arch-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin: 16px 0;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.07);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      text-align: center;
+      font-size: 0.85em;
+    }
+    .comp-box {
+      background: var(--light);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      min-width: 130px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .comp-box.top {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .arrow-h { color: var(--accent); font-size: 1.2em; }
+
+    /* ── FILE LIST ──────────────────────────────────── */
+    .file-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .file-list li {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88em;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .file-list .icon {
+      font-size: 1.2em;
+    }
+    .file-list .fname { font-weight: 600; color: var(--primary); font-family: monospace; }
+    .file-list .fdesc { color: #666; font-size: 0.9em; }
+
+    /* ── SCENARIO TABLE ─────────────────────────────── */
+    .tag-full  { background: #fdecea; color: var(--red);   font-weight:700; border-radius:4px; padding:1px 7px; font-size:0.82em; }
+    .tag-ok    { background: #eafaf1; color: var(--green); font-weight:700; border-radius:4px; padding:1px 7px; font-size:0.82em; }
+
+    /* ── FOOTER ─────────────────────────────────────── */
+    footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.7);
+      text-align: center;
+      padding: 22px;
+      font-size: 0.85em;
+    }
+    footer strong { color: #fff; }
+
+    /* ── INFO BOX ───────────────────────────────────── */
+    .info-box {
+      background: #e8f4fd;
+      border-left: 4px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 0.92em;
+    }
+
+    @media (max-width: 768px) {
+      header, .authors-section, main { padding-left: 20px; padding-right: 20px; }
+      .authors-section { margin: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════ HEADER -->
+<header>
+  <div class="badge">TP1 — VHDL</div>
+  <h1>Système de Gestion de Parking</h1>
+  <p>Modélisation VHDL synthétisable &bull; Simulation &bull; Implémentation FPGA Artix-7 (Basys 3)</p>
+  <p style="margin-top:10px; opacity:0.75; font-size:0.9em;">Vivado Design Suite &nbsp;|&nbsp; Basys 3 Board &nbsp;|&nbsp; Avril 2026</p>
+  <a class="github-btn" href="https://github.com/MontassarTayachi/-Gestion-de-Parking" target="_blank" rel="noopener noreferrer">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577
+        0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757
+        -1.09-.745.083-.729.083-.729 1.205.084 1.84 1.237 1.84 1.237 1.07 1.834 2.807 1.304
+        3.492.997.108-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.932
+        0-1.31.468-2.382 1.235-3.222-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322
+        3.3 1.23a11.5 11.5 0 0 1 3.003-.404c1.02.005 2.047.138 3.003.404
+        2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.12 3.176.77.84
+        1.233 1.912 1.233 3.222 0 4.61-2.807 5.624-5.479 5.922.43.372.823 1.102.823
+        2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.694.825.576C20.565 21.796
+        24 17.298 24 12c0-6.63-5.37-12-12-12z"/>
+    </svg>
+    Code Source — GitHub
+  </a>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ AUTHORS -->
+<div class="authors-section">
+  <h2>&#128100; Réalisé par</h2>
+  <div class="authors-grid">
+    <div class="author-card">
+      <div class="avatar">MT</div>
+      <span>Montassar Tayachi</span>
+    </div>
+    <div class="author-card">
+      <div class="avatar">YH</div>
+      <span>Med Yassine Hamami</span>
+    </div>
+    <div class="author-card">
+      <div class="avatar">AB</div>
+      <span>Amen Allah Bayoudh</span>
+    </div>
+    <div class="author-card">
+      <div class="avatar">OK</div>
+      <span>Med Omar Khaloun</span>
+    </div>
+    <div class="author-card" style="border:2px solid var(--accent);">
+      <div class="avatar" style="background:var(--primary);">2I</div>
+      <span><strong>Classe : 2ISEOC</strong></span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ MAIN -->
+<main>
+
+  <!-- ── 1. OBJECTIFS ──────────────────────────────────────────── -->
+  <section>
+    <div class="section-title">
+      <div class="section-num">1</div>
+      <h2>Objectifs</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Objectif</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Modéliser en VHDL synthétisable un système de gestion de parking de voitures</td></tr>
+          <tr><td>2</td><td>Valider et simuler le système via des testbenches</td></tr>
+          <tr><td>3</td><td>Utiliser l'objet <code>assert … report … severity</code> pour valider le fonctionnement</td></tr>
+          <tr><td>4</td><td>Implémenter la description sur FPGA Artix-7 (carte Basys 3)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 2. DESCRIPTION ────────────────────────────────────────── -->
+  <section>
+    <div class="section-title">
+      <div class="section-num">2</div>
+      <h2>Description du système</h2>
+    </div>
+    <p>
+      Le but du système est de gérer la disponibilité des places d'un parking. Il fournit :
+    </p>
+    <ul style="margin: 12px 0 12px 24px; line-height:2;">
+      <li><code>nb_places_dispos</code> : nombre de places disponibles (sortie 4 bits)</li>
+      <li><code>complet</code> : indicateur à <code>'1'</code> si le parking est plein</li>
+    </ul>
+    <p>
+      À travers les entrées <code>capt_entree</code> et <code>capt_sortie</code> (capteurs de présence),
+      le système met à jour le nombre de places disponibles :
+    </p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Signal</th><th>Direction</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>capt_entree</code></td><td>Entrée</td><td>Capteur de présence à l'entrée → incrémente le compteur de +1</td></tr>
+          <tr><td><code>capt_sortie</code></td><td>Entrée</td><td>Capteur de présence à la sortie → décrémente le compteur de -1</td></tr>
+          <tr><td><code>nb_places_dispos</code></td><td>Sortie</td><td>Nombre de places disponibles = max − count</td></tr>
+          <tr><td><code>complet</code></td><td>Sortie</td><td><code>'1'</code> si count ≥ max</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 3. ARCHITECTURE ───────────────────────────────────────── -->
+  <section>
+    <div class="section-title">
+      <div class="section-num">3</div>
+      <h2>Architecture globale</h2>
+    </div>
+    <div class="arch-box">
+      <div>
+        <div style="margin-bottom:8px; font-size:0.8em; color:#888;">capt_entree</div>
+        <div class="comp-box">Detect_Front_1<br/><small style="font-weight:400;color:#666;">FSM</small></div>
+        <div style="margin-top:8px; font-size:0.8em; color:#888;">capt_sortie</div>
+        <div class="comp-box" style="margin-top:6px;">Detect_Front_1<br/><small style="font-weight:400;color:#666;">FSM</small></div>
+      </div>
+      <div class="arrow-h">&#8594;</div>
+      <div>
+        <div class="comp-box">Compteur<br/><small style="font-weight:400;color:#666;">4 bits up/down</small></div>
+      </div>
+      <div class="arrow-h">&#8594; count &#8594;</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="comp-box">Comparateur<br/><small style="font-weight:400;color:#666;">count ≥ max</small></div>
+        <div class="comp-box">Soustracteur<br/><small style="font-weight:400;color:#666;">max − count</small></div>
+      </div>
+      <div class="arrow-h">&#8594;</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="comp-box"><strong>complet</strong></div>
+        <div class="comp-box"><strong>nb_places_dispos</strong></div>
+      </div>
+    </div>
+    <div class="arch-box" style="margin-top:0; padding-top:16px;">
+      <div>
+        <div style="font-size:0.8em; color:#888; margin-bottom:6px;">max_places_in</div>
+        <div class="comp-box">Registre<br/><small style="font-weight:400;color:#666;">capacité max</small></div>
+      </div>
+      <div class="arrow-h">&#8594; max &#8594;</div>
+      <div class="comp-box" style="color:#888; border-style:dashed;">Comparateur<br/>+ Soustracteur</div>
+    </div>
+  </section>
+
+  <!-- ── 4. COMPOSANTS ─────────────────────────────────────────── -->
+  <section>
+    <div class="section-title">
+      <div class="section-num">4</div>
+      <h2>Description des composants</h2>
+    </div>
+
+    <!-- 4.1 Compteur -->
+    <h3>4.1 — Composant <code>compteur</code></h3>
+    <p>Compteur/décompteur <strong>4 bits</strong> avec reset asynchrone actif haut.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Port</th><th>Direction</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>clk</code></td><td>in</td><td>Horloge système</td></tr>
+          <tr><td><code>rst</code></td><td>in</td><td>Reset asynchrone actif haut → remet count à 0</td></tr>
+          <tr><td><code>up</code></td><td>in</td><td><code>'1'</code> → incrémentation (+1)</td></tr>
+          <tr><td><code>down</code></td><td>in</td><td><code>'1'</code> → décrémentation (−1)</td></tr>
+          <tr><td><code>count</code></td><td>out</td><td>Valeur courante du comptage (4 bits)</td></tr>
+        </tbody>
+      </table>
+    </div>
+<pre><code><span class="kw">process</span>(<span class="sig">clk</span>, <span class="sig">rst</span>)
+<span class="kw">begin</span>
+  <span class="kw">if</span> <span class="sig">rst</span> = <span class="str">'1'</span> <span class="kw">then</span>
+    count_reg &lt;= (<span class="kw">others</span> =&gt; <span class="str">'0'</span>);          <span class="cm">-- Reset asynchrone</span>
+  <span class="kw">elsif rising_edge</span>(<span class="sig">clk</span>) <span class="kw">then</span>
+    <span class="kw">if</span> <span class="sig">up</span> = <span class="str">'1'</span> <span class="kw">and</span> <span class="sig">down</span> = <span class="str">'0'</span> <span class="kw">then</span>
+      <span class="kw">if</span> count_reg &lt; <span class="num">15</span> <span class="kw">then</span>
+        count_reg &lt;= count_reg + <span class="num">1</span>;       <span class="cm">-- Comptage (protection overflow)</span>
+      <span class="kw">end if</span>;
+    <span class="kw">elsif</span> <span class="sig">down</span> = <span class="str">'1'</span> <span class="kw">and</span> <span class="sig">up</span> = <span class="str">'0'</span> <span class="kw">then</span>
+      <span class="kw">if</span> count_reg &gt; <span class="num">0</span> <span class="kw">then</span>
+        count_reg &lt;= count_reg - <span class="num">1</span>;       <span class="cm">-- Décomptage (protection underflow)</span>
+      <span class="kw">end if</span>;
+    <span class="kw">end if</span>;
+  <span class="kw">end if</span>;
+<span class="kw">end process</span>;</code></pre>
+
+    <!-- 4.2 Registre -->
+    <h3>4.2 — Composant <code>registre</code></h3>
+    <p>Registre 4 bits pour stocker la capacité maximale du parking. Modifiable facilement sans recompilation.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Port</th><th>Direction</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>clk</code></td><td>in</td><td>Horloge système</td></tr>
+          <tr><td><code>rst</code></td><td>in</td><td>Reset asynchrone actif haut</td></tr>
+          <tr><td><code>load</code></td><td>in</td><td><code>'1'</code> → chargement de <code>data_in</code> dans le registre</td></tr>
+          <tr><td><code>data_in</code></td><td>in</td><td>Capacité maximale à charger (4 bits)</td></tr>
+          <tr><td><code>data_out</code></td><td>out</td><td>Capacité maximale stockée (4 bits)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:16px;">Niveaux de severity — <code>assert / report</code></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Niveau</th><th>Condition déclenchante</th><th>Comportement du simulateur</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="sev-note">NOTE</span></td>
+            <td>Valeur valide chargée (<code>data_in &gt; 0</code>)</td>
+            <td>Affichage informatif dans la console — simulation continue normalement</td>
+          </tr>
+          <tr>
+            <td><span class="sev-warning">WARNING</span></td>
+            <td><code>data_in = 0</code> (capacité nulle)</td>
+            <td>Message en surbrillance — simulation continue mais avertit l'utilisateur</td>
+          </tr>
+          <tr>
+            <td><span class="sev-error">ERROR</span></td>
+            <td><code>data_in &gt; 15</code> (impossible sur 4 bits)</td>
+            <td>Signalement d'erreur — selon les paramètres du simulateur, peut arrêter la simulation</td>
+          </tr>
+          <tr>
+            <td><span class="sev-failure">FAILURE</span></td>
+            <td>Cas critique irréparable</td>
+            <td>Arrêt <strong>immédiat et inconditionnel</strong> de la simulation</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 4.3 Comparateur -->
+    <h3>4.3 — Composant <code>comparateur</code></h3>
+    <p>Compare le nombre de voitures présentes avec la capacité maximale. Utilise une <strong>instruction concurrente conditionnelle</strong>.</p>
+<pre><code><span class="cm">-- Instruction concurrente conditionnelle (when/else)</span>
+<span class="sig">complet</span> &lt;= <span class="str">'1'</span> <span class="kw">when</span> (UNSIGNED(<span class="sig">count</span>) &gt;= UNSIGNED(<span class="sig">max</span>)) <span class="kw">else</span> <span class="str">'0'</span>;</code></pre>
+
+    <!-- 4.4 Soustracteur -->
+    <h3>4.4 — Composant <code>soustracteur</code></h3>
+    <p>Calcule le nombre de places disponibles :</p>
+    <p style="margin:12px 0 12px 24px; font-size:1.1em; font-weight:600;">
+      nb_places_dispos = max &minus; count
+    </p>
+<pre><code><span class="sig">nb_places_dispos</span> &lt;= STD_LOGIC_VECTOR(UNSIGNED(<span class="sig">max</span>) - UNSIGNED(<span class="sig">count</span>));</code></pre>
+
+    <!-- 4.5 Detect_Front_1 -->
+    <h3>4.5 — Composant <code>detect_front_1</code> (Machine d'états)</h3>
+    <div class="info-box">
+      <strong>Problème :</strong> Le capteur peut rester à <code>'1'</code> pendant plusieurs coups d'horloge.
+      Le compteur ne doit s'incrémenter qu'<strong>une seule fois</strong> par voiture.
+      La solution : détecter uniquement le <strong>front montant</strong> et générer une impulsion
+      d'exactement <strong>1 période d'horloge</strong>.
+    </div>
+
+    <h3 style="border-color:#e67e22; color:#b7590f;">5.1 — Diagramme d'états</h3>
+    <div class="fsm-wrap">
+      <div class="fsm">
+        <div class="state">
+          S0_IDLE
+          <div class="out">out = '0'</div>
+        </div>
+        <div class="arrow">
+          <div>signal_in='1'</div>
+          <div class="arrow-line">&#8594;</div>
+        </div>
+        <div class="state active">
+          S1_PULSE
+          <div class="out">out = <strong>'1'</strong></div>
+        </div>
+        <div class="arrow">
+          <div>(toujours)</div>
+          <div class="arrow-line">&#8594;</div>
+        </div>
+        <div class="state">
+          S2_WAIT
+          <div class="out">out = '0'</div>
+        </div>
+        <div class="arrow">
+          <div>signal_in='0'</div>
+          <div class="arrow-line">&#8618; S0_IDLE</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>État courant</th><th>Condition</th><th>État suivant</th><th>pulse_out</th></tr></thead>
+        <tbody>
+          <tr><td>S0_IDLE</td><td><code>signal_in = '1'</code></td><td>S1_PULSE</td><td><code>'0'</code></td></tr>
+          <tr><td>S0_IDLE</td><td><code>signal_in = '0'</code></td><td>S0_IDLE</td><td><code>'0'</code></td></tr>
+          <tr><td>S1_PULSE</td><td>(toujours)</td><td>S2_WAIT</td><td><strong><code>'1'</code></strong></td></tr>
+          <tr><td>S2_WAIT</td><td><code>signal_in = '1'</code></td><td>S2_WAIT</td><td><code>'0'</code></td></tr>
+          <tr><td>S2_WAIT</td><td><code>signal_in = '0'</code></td><td>S0_IDLE</td><td><code>'0'</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="border-color:#e67e22; color:#b7590f;">5.2 — Chronogramme (Figure 2)</h3>
+    <div class="timing">
+      <div><span class="sig-name">clk       :</span> <span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span><span class="hi">‾</span><span class="lo">_</span></div>
+      <div><span class="sig-name">signal_in :</span> <span class="lo">______</span><span class="hi">‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾</span><span class="lo">_______</span></div>
+      <div><span class="sig-name">pulse_out :</span> <span class="lo">__________</span><span class="pulse">‾‾</span><span class="lo">__________________</span></div>
+    </div>
+    <p style="font-size:0.88em; color:#666; margin-top:8px;">
+      &#9432; <code>pulse_out = '1'</code> pendant exactement <strong>1 période d'horloge</strong> lors du front montant,
+      quelle que soit la durée pendant laquelle <code>signal_in</code> reste à <code>'1'</code>.
+    </p>
+
+    <!-- 4.6 Gestion_Parking -->
+    <h3>4.6 — Composant <code>gestion_parking</code> (Top-Level)</h3>
+    <p>Architecture <strong>structurelle</strong> — instancie tous les sous-composants par <code>port map</code>.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Instance</th><th>Composant</th><th>Rôle</th></tr></thead>
+        <tbody>
+          <tr><td><code>U_DETECT_ENTREE</code></td><td><code>detect_front_1</code></td><td>Détection front montant capteur entrée</td></tr>
+          <tr><td><code>U_DETECT_SORTIE</code></td><td><code>detect_front_1</code></td><td>Détection front montant capteur sortie</td></tr>
+          <tr><td><code>U_COMPTEUR</code></td><td><code>compteur</code></td><td>Comptage des voitures dans le parking</td></tr>
+          <tr><td><code>U_REGISTRE</code></td><td><code>registre</code></td><td>Stockage de la capacité maximale</td></tr>
+          <tr><td><code>U_COMPARATEUR</code></td><td><code>comparateur</code></td><td>Détection de l'état "parking plein"</td></tr>
+          <tr><td><code>U_SOUSTRACTEUR</code></td><td><code>soustracteur</code></td><td>Calcul du nombre de places disponibles</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 5. VALIDATION ──────────────────────────────────────────── -->
+  <section>
+    <div class="section-title">
+      <div class="section-num">5</div>
+      <h2>Validation et simulation</h2>
+    </div>
+
+    <h3>5.1 — Plan de test</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Testbench</th><th>Composant testé</th><th>Cas couverts</th></tr></thead>
+        <tbody>
+          <tr><td><code>tb_compteur.vhd</code></td><td><code>compteur</code></td><td>Reset, comptage +5, décomptage −2, protection underflow / overflow</td></tr>
+          <tr><td><code>tb_registre.vhd</code></td><td><code>registre</code></td><td>Chargement valide, stabilité sans load, valeur 0, messages assert severity</td></tr>
+          <tr><td><code>tb_comparateur.vhd</code></td><td><code>comparateur</code></td><td>count &lt; max, count = max, count &gt; max</td></tr>
+          <tr><td><code>tb_soustracteur.vhd</code></td><td><code>soustracteur</code></td><td>Cas normaux, parking plein, parking vide</td></tr>
+          <tr><td><code>tb_detect_front_1.vhd</code></td><td><code>detect_front_1</code></td><td>Front long, front court, deux fronts successifs (Figure 2)</td></tr>
+          <tr><td><code>tb_gestion_parking.vhd</code></td><td><code>gestion_parking</code></td><td>Scénario complet d'utilisation système</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.2 — Scénario de simulation du top-level (capacité max = 4)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Étape</th><th>Action</th><th>count</th><th>nb_places_dispos</th><th>complet</th></tr></thead>
+        <tbody>
+          <tr><td>Init</td><td>Reset + load max = 4</td><td>0</td><td>4</td><td><span class="tag-ok">0</span></td></tr>
+          <tr><td>1</td><td>capt_entree pulse (voiture 1)</td><td>1</td><td>3</td><td><span class="tag-ok">0</span></td></tr>
+          <tr><td>2</td><td>capt_entree pulse (voiture 2)</td><td>2</td><td>2</td><td><span class="tag-ok">0</span></td></tr>
+          <tr><td>3</td><td>capt_entree pulse (voiture 3)</td><td>3</td><td>1</td><td><span class="tag-ok">0</span></td></tr>
+          <tr><td>4</td><td>capt_entree pulse (voiture 4)</td><td>4</td><td>0</td><td><span class="tag-full">1 — COMPLET</span></td></tr>
+          <tr><td>5</td><td>capt_sortie pulse (1 voiture sort)</td><td>3</td><td>1</td><td><span class="tag-ok">0</span></td></tr>
+          <tr><td>6</td><td>Reset système</td><td>0</td><td>4</td><td><span class="tag-ok">0</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── 6. FICHIERS ────────────────────────────────────────────── -->
+  <section>
+    <div class="section-title">
+      <div class="section-num">6</div>
+      <h2>Structure des fichiers</h2>
+    </div>
+    <ul class="file-list">
+      <li><span class="icon">&#128196;</span><div><div class="fname">compteur.vhd</div><div class="fdesc">Compteur/décompteur 4 bits</div></div></li>
+      <li><span class="icon">&#128196;</span><div><div class="fname">registre.vhd</div><div class="fdesc">Registre capacité max + assert</div></div></li>
+      <li><span class="icon">&#128196;</span><div><div class="fname">comparateur.vhd</div><div class="fdesc">Comparateur (when/else)</div></div></li>
+      <li><span class="icon">&#128196;</span><div><div class="fname">soustracteur.vhd</div><div class="fdesc">Calcul places disponibles</div></div></li>
+      <li><span class="icon">&#128196;</span><div><div class="fname">detect_front_1.vhd</div><div class="fdesc">FSM détecteur front montant</div></div></li>
+      <li><span class="icon">&#128196;</span><div><div class="fname">gestion_parking.vhd</div><div class="fdesc">Top-level structurel</div></div></li>
+      <li><span class="icon">&#129514;</span><div><div class="fname">tb_compteur.vhd</div><div class="fdesc">Testbench compteur</div></div></li>
+      <li><span class="icon">&#129514;</span><div><div class="fname">tb_registre.vhd</div><div class="fdesc">Testbench registre</div></div></li>
+      <li><span class="icon">&#129514;</span><div><div class="fname">tb_comparateur.vhd</div><div class="fdesc">Testbench comparateur</div></div></li>
+      <li><span class="icon">&#129514;</span><div><div class="fname">tb_soustracteur.vhd</div><div class="fdesc">Testbench soustracteur</div></div></li>
+      <li><span class="icon">&#129514;</span><div><div class="fname">tb_detect_front_1.vhd</div><div class="fdesc">Testbench FSM</div></div></li>
+      <li><span class="icon">&#129514;</span><div><div class="fname">tb_gestion_parking.vhd</div><div class="fdesc">Testbench top-level</div></div></li>
+    </ul>
+
+    <h3>Ordre de compilation (bibliothèque <code>work</code>)</h3>
+<pre><code><span class="cm">-- Étape 1 : Composants de base (aucune dépendance)</span>
+vcom compteur.vhd
+vcom registre.vhd
+vcom comparateur.vhd
+vcom soustracteur.vhd
+vcom detect_front_1.vhd
+
+<span class="cm">-- Étape 2 : Top-level (dépend de tous les composants)</span>
+vcom gestion_parking.vhd
+
+<span class="cm">-- Étape 3 : Testbenches</span>
+vcom tb_compteur.vhd
+vcom tb_registre.vhd
+vcom tb_comparateur.vhd
+vcom tb_soustracteur.vhd
+vcom tb_detect_front_1.vhd
+vcom tb_gestion_parking.vhd</code></pre>
+  </section>
+
+  <!-- ── 7. CONCLUSION ─────────────────────────────────────────── -->
+  <section>
+    <div class="section-title">
+      <div class="section-num">7</div>
+      <h2>Conclusion</h2>
+    </div>
+    <p>
+      Le système de gestion de parking a été entièrement décrit en <strong>VHDL synthétisable</strong>.
+      L'architecture structurelle du composant top-level <code>gestion_parking</code> permet d'assembler
+      proprement les six sous-composants indépendants.
+    </p>
+    <p>
+      La machine d'états <code>detect_front_1</code> garantit qu'une voiture n'est comptée
+      qu'<strong>une seule fois</strong>, même si le capteur reste actif plusieurs cycles d'horloge.
+    </p>
+    <p>
+      L'utilisation des assertions VHDL dans le composant <code>registre</code> illustre les quatre
+      niveaux de severity (<span class="sev-note">NOTE</span>, <span class="sev-warning">WARNING</span>,
+      <span class="sev-error">ERROR</span>, <span class="sev-failure">FAILURE</span>) et leur
+      impact différent sur le comportement du simulateur.
+    </p>
+    <p>
+      L'ensemble a été conçu pour être facilement implémentable sur la carte
+      <strong>Basys 3 (FPGA Artix-7)</strong> via Vivado Design Suite.
+    </p>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════════ FOOTER -->
+<footer>
+  <strong>TP1 — Gestion de Parking VHDL</strong> &nbsp;|&nbsp;
+  Montassar Tayachi &bull; Med Yassine Hamami &bull; Amen Allah Bayoudh &bull; Med Omar Khaloun
+  &nbsp;|&nbsp; <strong>2ISEOC</strong> &nbsp;|&nbsp; Avril 2026
+</footer>
+
+</body>
+</html>
