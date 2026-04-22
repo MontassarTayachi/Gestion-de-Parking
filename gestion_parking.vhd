@@ -89,6 +89,7 @@ architecture Structural of gestion_parking is
     signal pulse_sortie : STD_LOGIC;                       -- Impulsion front montant capteur sortie
     signal count_val    : STD_LOGIC_VECTOR(3 downto 0);   -- Nombre de voitures dans le parking
     signal max_val      : STD_LOGIC_VECTOR(3 downto 0);   -- Capacité maximale stockée
+    signal complet_int  : STD_LOGIC;                       -- Parking complet (interne) : bloque l'entrée
 
 begin
 
@@ -121,8 +122,8 @@ begin
         port map (
             clk   => clk,
             rst   => rst,
-            up    => pulse_entree,   -- Incrémente à chaque voiture entrant
-            down  => pulse_sortie,   -- Décrémente à chaque voiture sortant
+            up    => pulse_entree AND NOT complet_int,  -- Bloqué si parking complet
+            down  => pulse_sortie,                      -- Décrémente à chaque voiture sortant
             count => count_val
         );
 
@@ -145,8 +146,10 @@ begin
         port map (
             count   => count_val,
             max     => max_val,
-            complet => complet
+            complet => complet_int
         );
+
+    complet <= complet_int;
 
     -- ----------------------------------------------------------
     -- Instanciation : soustracteur (places disponibles)

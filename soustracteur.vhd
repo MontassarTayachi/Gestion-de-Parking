@@ -18,7 +18,8 @@ end soustracteur;
 architecture Behavioral of soustracteur is
 begin
 
-    -- Soustraction combinatoire : places disponibles = capacité max - voitures présentes
-    nb_places_dispos <= STD_LOGIC_VECTOR(UNSIGNED(max) - UNSIGNED(count));
+    -- Soustraction avec saturation à 0 : évite le wrap-around si count > max
+    nb_places_dispos <= (others => '0') when UNSIGNED(count) >= UNSIGNED(max)
+                        else STD_LOGIC_VECTOR(UNSIGNED(max) - UNSIGNED(count));
 
 end Behavioral;
