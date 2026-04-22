@@ -266,19 +266,21 @@ Capacité max configurée à **4 places** :
 
 ```
 PW_GestionParking/
-├── compteur.vhd           # Composant 1 : Compteur/décompteur 4 bits
-├── registre.vhd           # Composant 2 : Registre capacité max
-├── comparateur.vhd        # Composant 3 : Comparateur
-├── soustracteur.vhd       # Composant 4 : Soustracteur
-├── detect_front_1.vhd     # Composant 5 : Détecteur de front montant (FSM)
-├── gestion_parking.vhd    # Composant 6 : Top-level structurel
-├── tb_compteur.vhd        # Testbench du compteur
-├── tb_registre.vhd        # Testbench du registre
-├── tb_comparateur.vhd     # Testbench du comparateur
-├── tb_soustracteur.vhd    # Testbench du soustracteur
-├── tb_detect_front_1.vhd  # Testbench du détecteur de front
-├── tb_gestion_parking.vhd # Testbench du top-level
-└── RAPPORT.md             # Ce rapport
+├── compteur.vhd                  # Composant 1 : Compteur/décompteur 4 bits
+├── registre.vhd                  # Composant 2 : Registre capacité max
+├── comparateur.vhd               # Composant 3 : Comparateur
+├── soustracteur.vhd              # Composant 4 : Soustracteur
+├── detect_front_1.vhd            # Composant 5 : Détecteur de front montant (FSM)
+├── gestion_parking.vhd           # Composant 6 : Top-level logique
+├── gestion_parking_basys3.vhd    # Composant 7 : Wrapper matériel Basys 3
+├── gestion_parking_basys3.xdc    # Contraintes physiques Basys 3
+├── tb_compteur.vhd               # Testbench du compteur
+├── tb_registre.vhd               # Testbench du registre
+├── tb_comparateur.vhd            # Testbench du comparateur
+├── tb_soustracteur.vhd           # Testbench du soustracteur
+├── tb_detect_front_1.vhd         # Testbench du détecteur de front
+├── tb_gestion_parking.vhd        # Testbench du top-level
+└── README.md                     # Ce rapport
 ```
 
 ---
@@ -309,6 +311,139 @@ vcom tb_gestion_parking.vhd
 
 ---
 
-## 8. Conclusion
+## 8. Guide d'utilisation sur Basys 3
+
+### 8.1 Prérequis
+
+- **Carte :** Basys 3 (Artix-7 XC7A35T-1CPG236C)
+- **Logiciel :** Vivado Design Suite 2020.2 ou supérieur
+- **Câble :** USB-A vers Micro-USB (fourni avec la carte)
+- **Pilote :** Digilent USB-JTAG (installé automatiquement avec Vivado)
+
+---
+
+### 8.2 Création du projet Vivado
+
+1. Ouvrir Vivado → **Create Project**
+2. Nom du projet : `GestionParking`, choisir un répertoire
+3. Type : **RTL Project** — cocher *Do not specify sources at this time*
+4. Part : rechercher `xc7a35tcpg236-1` → sélectionner → **Finish**
+
+---
+
+### 8.3 Ajout des fichiers sources
+
+Dans le panneau **Sources**, cliquer sur **+** → *Add or Create Design Sources* → *Add Files*, puis sélectionner dans l'ordre :
+
+```
+compteur.vhd
+registre.vhd
+comparateur.vhd
+soustracteur.vhd
+detect_front_1.vhd
+gestion_parking.vhd
+gestion_parking_basys3.vhd    ← top matériel
+```
+
+Cocher **Copy sources into project** puis valider.
+
+---
+
+### 8.4 Ajout du fichier de contraintes
+
+Dans **Sources**, cliquer sur **+** → *Add or Create Constraints* → *Add Files* → sélectionner :
+
+```
+gestion_parking_basys3.xdc
+```
+
+Valider.
+
+---
+
+### 8.5 Définir le top module
+
+Dans le panneau **Sources**, faire un clic droit sur `gestion_parking_basys3` → **Set as Top**.
+
+---
+
+### 8.6 Synthèse, implémentation et génération du bitstream
+
+| Étape | Action Vivado | Durée estimée |
+|---|---|---|
+| Synthèse | *Run Synthesis* (Flow Navigator) | ~1 min |
+| Implémentation | *Run Implementation* | ~2 min |
+| Bitstream | *Generate Bitstream* | ~1 min |
+
+Vivado signalera **Bitstream Generation Successfully Completed** à la fin.
+
+---
+
+### 8.7 Programmation de la carte
+
+1. Brancher la Basys 3 via USB et mettre sous tension (interrupteur **POWER** sur ON)
+2. Dans Vivado → *Open Hardware Manager* → **Open Target** → *Auto Connect*
+3. Clic droit sur la carte détectée → **Program Device**
+4. Sélectionner le fichier `.bit` généré → **Program**
+
+La LED **DONE** sur la carte doit s'allumer en vert.
+
+---
+
+### 8.8 Utilisation sur la carte
+
+#### Mapping des contrôles
+
+| Élément physique | Fonction | Détail |
+|---|---|---|
+| `SW0` à `SW3` | Capacité maximale | Valeur binaire 4 bits, ex. `0100` = 4 places |
+| `BTNL` (bouton gauche) | Charger la capacité | Appuyer **une fois** après avoir positionné les switches |
+| `BTNC` (bouton central) | Reset général | Remet le compteur à 0 |
+| `BTNR` (bouton droit) | Voiture entre | Un appui = une voiture supplémentaire |
+| `BTND` (bouton bas) | Voiture sort | Un appui = une voiture de moins |
+| Afficheur 7 segments | Places disponibles | Digit de droite affiche 0–9 / A–F |
+| `LED0` | Parking complet | Allumée si aucune place disponible |
+
+#### Procédure de démarrage
+
+```
+1. Positionner SW3..SW0 sur la capacité souhaitée
+   Exemple : SW2 = ON → capacité = 4 places (0100)
+
+2. Appuyer sur BTNL pour charger la capacité
+   → L'afficheur affiche le nombre de places disponibles (ex. 4)
+
+3. Appuyer sur BTNR à chaque voiture entrant
+   → L'afficheur décrémente
+
+4. Appuyer sur BTND à chaque voiture sortant
+   → L'afficheur incrémente
+
+5. Quand l'afficheur atteint 0 → LED0 s'allume (parking complet)
+
+6. Appuyer sur BTNC pour remettre le compteur à zéro
+```
+
+#### Exemple visuel
+
+```
+Capacité max = 4 :  SW = 0100, appui BTNL
+Afficheur     : [4]      LED0 : OFF
+
+Après 2 entrées (2 × BTNR) :
+Afficheur     : [2]      LED0 : OFF
+
+Après 2 entrées supplémentaires :
+Afficheur     : [0]      LED0 : ON  ← Parking complet
+
+Après 1 sortie (BTND) :
+Afficheur     : [1]      LED0 : OFF
+```
+
+> **Remarque :** Les boutons de la Basys 3 peuvent produire du rebond mécanique. Si le compteur s'incrémente de 2 sur un seul appui, appuyer de façon brève et franche. Un module anti-rebond peut être ajouté si nécessaire.
+
+---
+
+## 9. Conclusion
 
 Le système de gestion de parking a été entièrement décrit en VHDL synthétisable. L'architecture structurelle du composant top-level `gestion_parking` permet d'assembler proprement tous les sous-composants. La machine d'états `detect_front_1` garantit qu'une voiture ne compte qu'une seule fois même si le capteur reste actif plusieurs cycles. L'utilisation des assertions VHDL dans le composant `registre` illustre les quatre niveaux de severity (`NOTE`, `WARNING`, `ERROR`, `FAILURE`) et leur impact sur le comportement du simulateur.
